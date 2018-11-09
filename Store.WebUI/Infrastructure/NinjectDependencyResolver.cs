@@ -6,6 +6,7 @@ using Ninject;
 using Moq;
 using Store.Domain.Abstract;
 using Store.Domain.Entities;
+using Store.Domain.Concrete;
 
 
 namespace Store.WebUI.Infrastructure
@@ -32,15 +33,16 @@ namespace Store.WebUI.Infrastructure
 
         private void AddBindings()
         {
-            Mock<IProductRepository> mock = new Mock<IProductRepository>();
-            mock.Setup(m => m.Products).Returns(new List<Product>
-            {
-                new Product {Name = "Piłka Nożna", Price = 25},
-                new Product {Name = "Deska surfingowa", Price = 179},
-                new Product {Name = "Buty do biegania", Price = 95}
-            });
+            //Mock<IProductRepository> mock = new Mock<IProductRepository>();
+            //mock.Setup(m => m.Products).Returns(new List<Product>
+            //{
+            //    new Product {Name = "Piłka Nożna", Price = 25},
+            //    new Product {Name = "Deska surfingowa", Price = 179},
+            //    new Product {Name = "Buty do biegania", Price = 95}
+            //});
 
-            kernel.Bind<IProductRepository>().ToConstant(mock.Object);
+            //kernel.Bind<IProductRepository>().ToConstant(mock.Object);
+            kernel.Bind<IProductRepository>().To<EFProductRepository>();
         }
     }
 }
