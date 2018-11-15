@@ -4,8 +4,12 @@
     ViewBag.Title = "Sklep sportowy: Twój koszyk";
 }
 
+<style>
+    #cartTable td {vertical-align: middle;}
+</style>
+
 <h2>Twój koszyk</h2>
-<table class="table">
+<table id="cartTable" class="table">
     <thred>
         <tr>
             <th>Ilość</th>
@@ -15,14 +19,22 @@
         </tr>
     </thred>
     <tbody>
-        @foreach(var line in Model.Cart.Lines)
+        @foreach (var line in Model.Cart.Lines)
         {
-        <tr>
-            <td class="text-center">@line.Quantity</td>
-            <td class="text-left">@line.Product.Name</td>
-            <td class="text-right">@line.Product.Price.ToString("c")</td>
-            <td class="text-right">@((line.Quantity * line.Product.Price).ToString("c"))</td>
-        </tr>
+            <tr>
+                <td class="text-center">@line.Quantity</td>
+                <td class="text-left">@line.Product.Name</td>
+                <td class="text-right">@line.Product.Price.ToString("c")</td>
+                <td class="text-right">@((line.Quantity * line.Product.Price).ToString("c"))</td>
+                <td>
+                    @using (Html.BeginForm("RemoveFromCart", "Cart"))
+                    {
+                        @Html.Hidden("ProductId", line.Product.ProductID)
+                        @Html.HiddenFor(x => x.ReturnUrl)
+                        <input class="btn btn-sm btn-warning" type="submit" value="Usuń" />
+                    }
+                </td>
+            </tr>
         }
     </tbody>
     <tfoot>
