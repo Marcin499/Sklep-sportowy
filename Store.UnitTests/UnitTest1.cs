@@ -43,7 +43,7 @@ namespace Store.UnitTests
         [TestMethod]
         public void Can_Send_Pagination_View_Model()
         {
-            
+
             Mock<IProductRepository> mock = new Mock<IProductRepository>();
             mock.Setup(m => m.Products).Returns(new Product[] {
             new Product {ProductID = 1, Name = "P1"},
@@ -52,12 +52,12 @@ namespace Store.UnitTests
             new Product {ProductID = 4, Name = "P4"},
             new Product {ProductID = 5, Name = "P5"}
             });
-           
+
             ProductController controller = new ProductController(mock.Object);
             controller.PageSize = 3;
-            
+
             ProductListViewModel result = (ProductListViewModel)controller.List(null, 2).Model;
-            
+
             PagingInfo pageInfo = result.PagingInfo;
             Assert.AreEqual(pageInfo.CurrentPage, 2);
             Assert.AreEqual(pageInfo.ItemsPerPage, 3);
@@ -114,7 +114,7 @@ namespace Store.UnitTests
         {
 
             Mock<IProductRepository> mock = new Mock<IProductRepository>();
-            mock.Setup(m => m.Products).Returns(new Product[] 
+            mock.Setup(m => m.Products).Returns(new Product[]
             {
              new Product {ProductID = 1, Name = "P1", Category = "Jabłka"},
              new Product {ProductID = 4, Name = "P2", Category = "Pomarańcze"},
@@ -131,9 +131,9 @@ namespace Store.UnitTests
 
         [TestMethod]
         public void Generate_Category_Specific_Product_Count()
-        {            
+        {
             Mock<IProductRepository> mock = new Mock<IProductRepository>();
-            mock.Setup(m => m.Products).Returns(new Product[] 
+            mock.Setup(m => m.Products).Returns(new Product[]
             {
             new Product {ProductID = 1, Name = "P1", Category = "Cat1"},
             new Product {ProductID = 2, Name = "P2", Category = "Cat2"},
@@ -141,10 +141,10 @@ namespace Store.UnitTests
             new Product {ProductID = 4, Name = "P4", Category = "Cat2"},
             new Product {ProductID = 5, Name = "P5", Category = "Cat3"}
             });
-            
+
             ProductController target = new ProductController(mock.Object);
             target.PageSize = 3;
-            
+
             int res1 = ((ProductListViewModel)target.List("Cat1").Model).PagingInfo.TotalItems;
             int res2 = ((ProductListViewModel)target.List("Cat2").Model).PagingInfo.TotalItems;
             int res3 = ((ProductListViewModel)target.List("Cat3").Model).PagingInfo.TotalItems;
@@ -175,12 +175,12 @@ namespace Store.UnitTests
 
         [TestMethod]
         public void Can_Add_Quantity_For_Existing_Lines()
-        {            
+        {
             Product p1 = new Product { ProductID = 1, Name = "P1" };
             Product p2 = new Product { ProductID = 2, Name = "P2" };
-            
+
             Cart target = new Cart();
-            
+
             target.AddItem(p1, 1);
             target.AddItem(p2, 1);
             target.AddItem(p1, 10);
@@ -193,166 +193,263 @@ namespace Store.UnitTests
 
         [TestMethod]
         public void Can_Remove_Line()
-        {            
+        {
             Product p1 = new Product { ProductID = 1, Name = "P1" };
             Product p2 = new Product { ProductID = 2, Name = "P2" };
             Product p3 = new Product { ProductID = 3, Name = "P3" };
-            
+
             Cart target = new Cart();
-            
+
             target.AddItem(p1, 1);
             target.AddItem(p2, 3);
             target.AddItem(p3, 5);
             target.AddItem(p2, 1);
-           
+
             target.RemoveLine(p2);
-            
+
             Assert.AreEqual(target.Lines.Where(c => c.Product == p2).Count(), 0);
             Assert.AreEqual(target.Lines.Count(), 2);
         }
 
         [TestMethod]
         public void Calculate_Cart_Total()
-        {            
+        {
             Product p1 = new Product { ProductID = 1, Name = "P1", Price = 100M };
             Product p2 = new Product { ProductID = 2, Name = "P2", Price = 50M };
-            
+
             Cart target = new Cart();
-            
+
             target.AddItem(p1, 1);
             target.AddItem(p2, 1);
             target.AddItem(p1, 3);
             decimal result = target.ComputeTotalValue();
-            
+
             Assert.AreEqual(result, 450M);
         }
 
         [TestMethod]
         public void Can_Clear_Contents()
-        {            
+        {
             Product p1 = new Product { ProductID = 1, Name = "P1", Price = 100M };
             Product p2 = new Product { ProductID = 2, Name = "P2", Price = 50M };
-            
+
             Cart target = new Cart();
-            
+
             target.AddItem(p1, 1);
             target.AddItem(p2, 1);
-            
+
             target.Clear();
-            
+
             Assert.AreEqual(target.Lines.Count(), 0);
         }
 
         [TestMethod]
         public void Can_Add_To_Cart()
-        {            
+        {
             Mock<IProductRepository> mock = new Mock<IProductRepository>();
             mock.Setup(m => m.Products).Returns(new Product[] {
             new Product {ProductID = 1, Name = "P1", Category = "Jab"},
             }.AsQueryable());
 
-            
+
             Cart cart = new Cart();
-           
+
             CartController target = new CartController(mock.Object, null);
-            
+
             target.AddToCart(cart, 1, null);
 
-            
+
             Assert.AreEqual(cart.Lines.Count(), 1);
             Assert.AreEqual(cart.Lines.ToArray()[0].Product.ProductID, 1);
         }
 
         [TestMethod]
         public void Adding_Product_To_Cart_Goes_To_Cart_Screen()
-        {            
+        {
             Mock<IProductRepository> mock = new Mock<IProductRepository>();
             mock.Setup(m => m.Products).Returns(new Product[] {
             new Product {ProductID = 1, Name = "P1", Category = "Jabłka"},
             }.AsQueryable());
-            
+
             Cart cart = new Cart();
-            
+
             CartController target = new CartController(mock.Object, null);
-            
+
             RedirectToRouteResult result = target.AddToCart(cart, 2, "myUrl");
-            
+
             Assert.AreEqual(result.RouteValues["action"], "Index");
             Assert.AreEqual(result.RouteValues["returnUrl"], "myUrl");
         }
 
         [TestMethod]
         public void Can_View_Cart_Contents()
-        {            
+        {
             Cart cart = new Cart();
-           
+
             CartController target = new CartController(null, null);
-            
+
             CartIndexViewModel result
             = (CartIndexViewModel)target.Index(cart, "myUrl").ViewData.Model;
-           
+
             Assert.AreSame(result.Cart, cart);
             Assert.AreEqual(result.ReturnUrl, "myUrl");
         }
 
         [TestMethod]
         public void Cannot_Checkout_Empty_Cart()
-        {            
+        {
             Mock<IOrderProcessor> mock = new Mock<IOrderProcessor>();
-            
+
             Cart cart = new Cart();
-           
+
             ShippingDetails shippingDetails = new ShippingDetails();
-           
+
             CartController target = new CartController(null, mock.Object);
-            
+
             ViewResult result = target.Checkout(cart, shippingDetails);
-            
+
             mock.Verify(m => m.ProcessOrder(It.IsAny<Cart>(), It.IsAny<ShippingDetails>()),
             Times.Never());
-            
-            Assert.AreEqual("", result.ViewName);            
+
+            Assert.AreEqual("", result.ViewName);
             Assert.AreEqual(false, result.ViewData.ModelState.IsValid);
         }
 
         [TestMethod]
         public void Cannot_Checkout_Invalid_ShippingDetails()
-        {            
+        {
             Mock<IOrderProcessor> mock = new Mock<IOrderProcessor>();
-            
+
             Cart cart = new Cart();
             cart.AddItem(new Product(), 1);
-            
+
             CartController target = new CartController(null, mock.Object);
-           
+
             target.ModelState.AddModelError("error", "error");
-            
+
             ViewResult result = target.Checkout(cart, new ShippingDetails());
-            
+
             mock.Verify(m => m.ProcessOrder(It.IsAny<Cart>(), It.IsAny<ShippingDetails>()),
             Times.Never());
-            
-            Assert.AreEqual("", result.ViewName);            
+
+            Assert.AreEqual("", result.ViewName);
             Assert.AreEqual(false, result.ViewData.ModelState.IsValid);
         }
 
         [TestMethod]
         public void Can_Checkout_And_Submit_Order()
-        {            
+        {
             Mock<IOrderProcessor> mock = new Mock<IOrderProcessor>();
-            
+
             Cart cart = new Cart();
             cart.AddItem(new Product(), 1);
-            
+
             CartController target = new CartController(null, mock.Object);
-            
+
             ViewResult result = target.Checkout(cart, new ShippingDetails());
-            
+
             mock.Verify(m => m.ProcessOrder(It.IsAny<Cart>(), It.IsAny<ShippingDetails>()),
             Times.Once());
-           
-            Assert.AreEqual("Completed", result.ViewName);           
+
+            Assert.AreEqual("Completed", result.ViewName);
             Assert.AreEqual(true, result.ViewData.ModelState.IsValid);
         }
+
+        [TestMethod]
+        public void Index_Contains_All_Products()
+        {
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+            mock.Setup(m => m.Products).Returns(new Product[]
+            {
+                new Product {ProductID = 1, Name = "P1"},
+                new Product {ProductID = 2, Name = "P2"},
+                new Product {ProductID = 3, Name = "P3"},
+            });
+
+            AdminController target = new AdminController(mock.Object);
+
+            Product[] result = ((IEnumerable<Product>)target.Index().ViewData.Model).ToArray();
+
+            Assert.AreEqual(result.Length, 3);
+            Assert.AreEqual("P1", result[0].Name);
+            Assert.AreEqual("P2", result[1].Name);
+            Assert.AreEqual("P3", result[2].Name);
+        }
+
+        [TestMethod]
+        public void Can_Edit_Product()
+        {
+
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+            mock.Setup(m => m.Products).Returns(new Product[] {
+            new Product {ProductID = 1, Name = "P1"},
+            new Product {ProductID = 2, Name = "P2"},
+            new Product {ProductID = 3, Name = "P3"},
+            });
+
+            AdminController target = new AdminController(mock.Object);
+
+            Product p1 = target.Edit(1).ViewData.Model as Product;
+            Product p2 = target.Edit(2).ViewData.Model as Product;
+            Product p3 = target.Edit(3).ViewData.Model as Product;
+
+            Assert.AreEqual(1, p1.ProductID);
+            Assert.AreEqual(2, p2.ProductID);
+            Assert.AreEqual(3, p3.ProductID);
+        }
+
+        [TestMethod]
+        public void Cannot_Edit_Nonexistent_Product()
+        {
+
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+            mock.Setup(m => m.Products).Returns(new Product[] {
+            new Product {ProductID = 1, Name = "P1"},
+            new Product {ProductID = 2, Name = "P2"},
+            new Product {ProductID = 3, Name = "P3"},
+            });
+
+            AdminController target = new AdminController(mock.Object);
+
+            Product result = (Product)target.Edit(4).ViewData.Model;
+
+            Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public void Can_Save_Valid_Changes()
+        {
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+
+            AdminController target = new AdminController(mock.Object);
+
+            Product product = new Product { Name = "Test" };
+
+            ActionResult result = target.Edit(product);
+
+            mock.Verify(m => m.SaveProduct(product));
+
+            Assert.IsNotInstanceOfType(result, typeof(ViewResult));
+        }
+
+        [TestMethod]
+        public void Cannot_Save_Invalid_Changes()
+        {
+
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+
+            AdminController target = new AdminController(mock.Object);
+
+            Product product = new Product { Name = "Test" };
+
+            target.ModelState.AddModelError("error", "error");
+
+            ActionResult result = target.Edit(product);
+
+            mock.Verify(m => m.SaveProduct(It.IsAny<Product>()), Times.Never());
+
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
+        }
+               
     }
 }
