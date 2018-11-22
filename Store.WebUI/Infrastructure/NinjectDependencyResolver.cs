@@ -8,6 +8,8 @@ using Store.Domain.Abstract;
 using Store.Domain.Entities;
 using Store.Domain.Concrete;
 using System.Configuration;
+using Store.WebUI.Infrastructure.Abstract;
+using Store.WebUI.Infrastructure.Concrete;
 
 namespace Store.WebUI.Infrastructure
 {
@@ -43,6 +45,8 @@ namespace Store.WebUI.Infrastructure
 
             kernel.Bind<IOrderProcessor>().To<EmailOrderProcessor>()
             .WithConstructorArgument("settings", emailSettings);
+
+            kernel.Bind<IAuthProvider>().To<FormsAuthProvider>();
         }
     }
 }
