@@ -380,7 +380,6 @@ namespace Store.UnitTests
         [TestMethod]
         public void Can_Edit_Product()
         {
-
             Mock<IProductRepository> mock = new Mock<IProductRepository>();
             mock.Setup(m => m.Products).Returns(new Product[] {
             new Product {ProductID = 1, Name = "P1"},
@@ -402,7 +401,6 @@ namespace Store.UnitTests
         [TestMethod]
         public void Cannot_Edit_Nonexistent_Product()
         {
-
             Mock<IProductRepository> mock = new Mock<IProductRepository>();
             mock.Setup(m => m.Products).Returns(new Product[] {
             new Product {ProductID = 1, Name = "P1"},
@@ -436,7 +434,6 @@ namespace Store.UnitTests
         [TestMethod]
         public void Cannot_Save_Invalid_Changes()
         {
-
             Mock<IProductRepository> mock = new Mock<IProductRepository>();
 
             AdminController target = new AdminController(mock.Object);
@@ -454,8 +451,7 @@ namespace Store.UnitTests
 
         [TestMethod]
         public void Can_Login_With_Valid_Credentials()
-        {
-            
+        {            
             Mock<IAuthProvider> mock = new Mock<IAuthProvider>();
             mock.Setup(m => m.Authenticate("admin", "sekret")).Returns(true);
            
@@ -476,8 +472,7 @@ namespace Store.UnitTests
 
         [TestMethod]
         public void Cannot_Login_With_Invalid_Credentials()
-        {
-            
+        {            
             Mock<IAuthProvider> mock = new Mock<IAuthProvider>();
             mock.Setup(m => m.Authenticate("nieprawidłowyUżytkownik",
             "nieprawidłoweHasło")).Returns(false);
@@ -494,6 +489,49 @@ namespace Store.UnitTests
            
             Assert.IsInstanceOfType(result, typeof(ViewResult));
             Assert.IsFalse(((ViewResult)result).ViewData.ModelState.IsValid);
+        }
+
+        [TestMethod]
+        public void Can_Retrieve_Image_Data()
+        {            
+            Product prod = new Product
+            {
+                ProductID = 2,
+                Name = "Test",
+                ImageData = new byte[] { },
+                ImageMimeType = "image/png"
+            };
+            
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+            mock.Setup(m => m.Products).Returns(new Product[] {
+                new Product {ProductID = 1, Name = "P1"},
+                 prod,
+                 new Product {ProductID = 3, Name = "P3"}
+            }.AsQueryable());
+            
+            ProductController target = new ProductController(mock.Object);
+            
+            ActionResult result = target.GetImage(2);
+            
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(FileResult));
+            Assert.AreEqual(prod.ImageMimeType, ((FileResult)result).ContentType);
+        }
+
+        [TestMethod]
+        public void Cannot_Retrieve_Image_Data_For_Invalid_ID()
+        {            
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+            mock.Setup(m => m.Products).Returns(new Product[] {
+                new Product {ProductID = 1, Name = "P1"},
+                new Product {ProductID = 2, Name = "P2"}
+            }.AsQueryable());
+            
+            ProductController target = new ProductController(mock.Object);
+            
+            ActionResult result = target.GetImage(100);
+   
+            Assert.IsNull(result);
         }
     }
 }
