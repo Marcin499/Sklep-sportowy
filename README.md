@@ -1,9 +1,9 @@
 # Sklep sportowy
-Aplikacja stworzona w oparciu o ASP.NET MVC 5. Zawiera ona wszystkie niezbędne funkcje do prawidłowego działania sklepu internetowego (m.in. koszyk zamówienia, panel administracyjny,)
-Sklep sportowy jest aplikacją responsywna przystosowana do prawidłowego wyswietlania na urządzeniach mobilnych
+Aplikacja stworzona w oparciu o ASP.NET MVC 5. Zawiera ona niezbędne funkcje do prawidłowego działania sklepu internetowego (m.in. koszyk zamówienia, panel administracyjny,)
+Sklep sportowy jest aplikacją responsywną przystosowaną do prawidłowego wyswietlania na urządzeniach mobilnych.
 Podczas tworzenia aplikacji wykorzystano: 
 - Ninject implementujący wzorzec Dependecy Injection
-- Entity Framework 6 do łaczenia aplikacji z bazą danych
+- Entity Framework 6 do łączenia aplikacji z bazą danych
 - testy jednostkowe wraz z biblioteką Moq
 - bibliotekę jquery oraz boostrap
 
